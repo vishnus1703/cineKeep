@@ -1,0 +1,230 @@
+/* ==========================================================================
+   CINEKEEP PREMIUM DESIGN SYSTEM - NEXT-GEN CINEMATIC MASTER STYLESHEET
+   ========================================================================== */
+
+/* ---------------------------------------------------------
+   1. GLOBAL CANVAS CORE FOUNDATION & TYPOGRAPHY SMOOTHING
+   --------------------------------------------------------- */
+body { 
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased; /* Forces crisp subpixel rendering on Webkit */
+    -moz-osx-font-smoothing: grayscale;    /* Fixes font weights rendering too heavy on Firefox Mac */
+    background-color: #02040a;
+    background-image: 
+        radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.05) 0%, transparent 35%),
+        radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(4, 7, 17, 1) 0%, #02040a 100%);
+    background-attachment: fixed;
+    letter-spacing: -0.025em; /* Premium tight tracking for dense modern user interfaces */
+}
+
+/* ---------------------------------------------------------
+   2. HIGH-END LEFT NAVIGATION TYPOGRAPHY SYSTEM
+   --------------------------------------------------------- */
+
+/* Sidebar Section Headers (Menu Directory, Filter Genres, Studio Utilities) */
+#menuDirectory span[class*="tracking-widest"],
+aside span[class*="tracking-widest"] {
+    font-size: 0.6875rem !important; /* 11px micro-typography scale */
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.18em !important; /* Elegant wide tracking separation for section headers */
+    color: #475569 !important; /* Refined Slate-600 space color depth */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    opacity: 0.9;
+}
+
+/* Inactive Sidebar Navigation Row Typography Labels */
+.nav-item span.tracking-wide, 
+.genre-row span.tracking-wide {
+    font-weight: 500 !important;
+    font-size: 0.85rem !important; /* Ultra-precise streaming layout label sizing */
+    letter-spacing: -0.015em !important;
+    color: #94a3b8 !important; /* Muted slate-400 for structural text balance */
+    transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1), text-shadow 0.3s ease !important;
+}
+
+/* Active Typographic Illumination and Refraction Glows */
+.nav-item.active span.tracking-wide, 
+.genre-row.active span.tracking-wide {
+    font-weight: 700 !important; /* Prominent bold weight for fast scannability */
+    color: #ffffff !important;   /* High-contrast pure white illumination */
+    letter-spacing: -0.01em !important;
+    text-shadow: 
+        0 0 15px rgba(129, 140, 248, 0.35), 
+        0 0 5px rgba(129, 140, 248, 0.2);
+}
+
+/* Profile Section Typographic Scale Polish */
+#sidebarUserName {
+    font-weight: 700 !important;
+    font-size: 0.8rem !important;
+    letter-spacing: -0.02em !important;
+    color: #f1f5f9;
+}
+
+#sidebarUserStatus {
+    font-size: 0.625rem !important; /* 10px subtext weight */
+    font-weight: 800 !important;
+    letter-spacing: 0.12em !important; /* Clean tracking for user group tags */
+    color: #64748b !important;
+}
+
+/* ---------------------------------------------------------
+   3. CUSTOM UTILITY MINIMAL INTERFACE SCROLLBARS
+   --------------------------------------------------------- */
+::-webkit-scrollbar { 
+    width: 5px; 
+    height: 5px; 
+}
+
+::-webkit-scrollbar-track { 
+    background: #02040a; 
+}
+
+::-webkit-scrollbar-thumb { 
+    background: rgba(255, 255, 255, 0.04); 
+    border-radius: 100px;
+    border: 1px solid #02040a;
+}
+
+::-webkit-scrollbar-thumb:hover { 
+    background: rgba(99, 102, 241, 0.4); 
+}
+
+/* ---------------------------------------------------------
+   4. HORIZONTAL TRACK SCROLLBAR ABSOLUTE EXTINCTION ENGINE
+   --------------------------------------------------------- */
+.scrollbar-hide::-webkit-scrollbar,
+#upcomingSlider::-webkit-scrollbar {
+    display: none !important;
+    width: 0px !important;
+    height: 0px !important;
+}
+
+.scrollbar-hide, #upcomingSlider {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+#upcomingSlider::-webkit-scrollbar-track-piece,
+#upcomingSlider::-webkit-scrollbar-corner {
+    background: transparent !important;
+    display: none !important;
+}
+
+/* ---------------------------------------------------------
+   5. TACTILE GLASS WORKSPACE DIRECTORY & ONE-BY-ONE GENRE ROWS
+   --------------------------------------------------------- */
+.nav-item, .genre-row {
+    position: relative;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Kinetic Row Pop Expansion Nudge Hover Physics */
+.nav-item:hover, .genre-row:hover {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-color: rgba(255, 255, 255, 0.01) !important;
+    padding-left: 20px !important;
+}
+
+.nav-item:hover span.tracking-wide,
+.genre-row:hover span.tracking-wide {
+    color: #ffffff !important;
+}
+
+/* Unified Elite Active Pill Highlights (Frosted Capsule State) */
+.nav-item.active, .genre-row.active {
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.01) 100%) !important;
+    border: 1px solid rgba(99, 102, 241, 0.18) !important;
+    border-left: 3px solid #6366f1 !important;
+    padding-left: 20px !important;
+    box-shadow: 
+        0 10px 30px -10px rgba(0, 0, 0, 0.5),
+        inset 1px 1px 0px rgba(255, 255, 255, 0.04);
+}
+
+/* Active Highlight Icon Frame Box Enforcements */
+.nav-item.active .nav-icon-box,
+.genre-row.active .genre-icon-box {
+    background: rgba(99, 102, 241, 0.22) !important;
+    border-color: rgba(99, 102, 241, 0.35) !important;
+    filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.4));
+}
+
+.nav-item.active .nav-icon-box i,
+.genre-row.active .genre-icon-box i {
+    color: #a5b4fc !important;
+}
+
+.nav-item .active-indicator {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-item.active .active-indicator {
+    opacity: 1 !important;
+    transform: scaleY(1) !important;
+}
+
+/* ---------------------------------------------------------
+   6. ULTRA-PREMIUM GLASSMORPHIC CATALOG MEDIA CARDS
+   --------------------------------------------------------- */
+#movieGrid > div, 
+#upcomingSlider > div {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.01) 0%, rgba(255, 255, 255, 0.005) 100%) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.03) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+#movieGrid > div:hover,
+#upcomingSlider > div:hover {
+    transform: translateY(-8px) scale(1.015);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%) !important;
+    border-color: rgba(129, 140, 248, 0.25) !important;
+    box-shadow: 
+        0 30px 60px -20px rgba(0, 0, 0, 0.8), 
+        0 0 40px -10px rgba(99, 102, 241, 0.12),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+#movieGrid > div img, 
+#upcomingSlider > div img {
+    border-radius: 14px !important;
+}
+
+/* ---------------------------------------------------------
+   7. PREMIUM METRICS DETAIL DRAWER OVERLAY SMOOTH SCROLLER
+   --------------------------------------------------------- */
+.terms-scroll::-webkit-scrollbar {
+    width: 3px;
+}
+
+.terms-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.terms-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 99px;
+}
+
+.terms-scroll::-webkit-scrollbar-thumb:hover {
+    background: #6366f1;
+}
+
+/* ---------------------------------------------------------
+   8. RUNTIME FORM AUTOFILL OVERRIDE CAPTURES
+   --------------------------------------------------------- */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #e2e8f0;
+    -webkit-box-shadow: 0 0 0px 1000px #050814 inset;
+    transition: background-color 5000s ease-in-out 0s;
+}

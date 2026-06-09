@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineKeep - Stream & Discover</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/global.css">
+</head>
+<body class="min-h-screen bg-[#040711] text-slate-100 antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden">
+
+    <!-- Sticky Navigation Frame Header -->
+    <nav class="sticky top-0 z-40 w-full bg-[#040711]/70 backdrop-blur-xl border-b border-white/[0.04] px-4 lg:px-10 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3 cursor-pointer group" onclick="window.location.reload()">
+            <div class="relative p-2.5 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl shadow-xl shadow-indigo-600/20 group-hover:shadow-indigo-500/40 transition-all duration-300">
+                <i class="fa-solid fa-play text-sm text-white pl-0.5"></i>
+                <div class="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                    Cine<span class="text-indigo-400 drop-shadow-[0_0_12px_rgba(129,140,248,0.5)]">Keep</span>
+                </span>
+                <span class="text-[10px] text-indigo-400/60 uppercase tracking-widest font-bold -mt-1">Premium Lounge</span>
+            </div>
+        </div>
+
+        <!-- Central Quick Search Console Input Frame -->
+        <div class="hidden md:flex flex-col items-center w-full max-w-lg mx-12 relative group">
+            <div class="w-full relative flex items-center">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 text-slate-500 group-focus-within:text-indigo-400 transition-colors"></i>
+                <input 
+                    id="searchInput"
+                    type="text" 
+                    placeholder="Search movies, lists, actors, genres..." 
+                    class="w-full bg-white/[0.03] border border-white/[0.06] rounded-2xl pl-11 pr-12 py-2.5 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500/80 focus:bg-white/[0.05] focus:ring-4 focus:ring-indigo-500/10 transition-all duration-300"
+                    autocomplete="off"
+                >
+                <i id="searchSpinner" class="fa-solid fa-spinner fa-spin absolute right-12 text-indigo-400 hidden"></i>
+                <div class="absolute right-3 px-2 py-0.5 bg-white/10 rounded-md text-[10px] text-slate-400 font-bold tracking-wide pointer-events-none">CTRL K</div>
+            </div>
+
+            <div id="searchDropdown" class="absolute top-full left-0 w-full mt-2 bg-[#090d16]/95 backdrop-blur-2xl border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden z-50 max-h-80 overflow-y-auto hidden opacity-0 transition-all duration-200 translate-y-2">
+                <div id="searchDropdownContent" class="p-2 space-y-1"></div>
+            </div>
+        </div>
+
+        <!-- Top Right Profile & Quick Actions Panel Control Center -->
+        <div class="flex items-center gap-4">
+            <button onclick="switchMenuTab('favorites', true)" class="relative text-slate-400 hover:text-white transition-all duration-300 hover:scale-105 focus:outline-none flex items-center justify-center p-2 rounded-xl hover:bg-white/[0.04] group/favHead" title="View Favorites Collections">
+                <i class="fa-solid fa-heart text-lg text-slate-400 group-hover/favHead:text-rose-400 transition-colors duration-300 filter group-hover/favHead:drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]"></i>
+                <span id="headerFavoriteCount" class="absolute -top-1 -right-1 bg-gradient-to-r from-rose-500 to-pink-500 text-[9px] text-white font-black w-4 h-4 rounded-full flex items-center justify-center border border-[#040711] shadow-lg shadow-rose-500/20 transition-all">0</span>
+            </button>
+
+            <button onclick="switchMenuTab('watchlist', true)" class="relative text-slate-400 hover:text-white transition-all duration-300 hover:scale-105 focus:outline-none flex items-center justify-center p-2 rounded-xl hover:bg-white/[0.04] group/watch" title="View Watchlist">
+                <i class="fa-solid fa-bookmark text-lg text-slate-400 group-hover/watch:text-indigo-400 transition-colors duration-300 filter group-hover/watch:drop-shadow-[0_0_8px_rgba(129,140,248,0.6)]"></i>
+                <span id="headerWatchlistCount" class="absolute -top-1 -right-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-[9px] text-white font-black w-4 h-4 rounded-full flex items-center justify-center border border-[#040711] shadow-lg shadow-indigo-500/20 transition-all">0</span>
+            </button>
+
+            <!-- LIVE ACTIVITY NOTIFICATION DECK DROP-DOWN SYSTEM -->
+            <div class="relative flex items-center">
+                <button id="navbarNotificationTrigger" class="relative text-slate-400 hover:text-white transition-all duration-300 hover:scale-105 focus:outline-none flex items-center justify-center p-2 rounded-xl hover:bg-white/[0.04] group/notif" title="Notifications">
+                    <i class="fa-regular fa-bell text-lg group-hover/notif:text-indigo-400 transition-colors duration-300"></i>
+                    <span id="notificationAlertDot" class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-indigo-500 shadow-[0_0_8px_#6366f1] animate-pulse"></span>
+                </button>
+
+                <div id="navbarNotificationMenu" class="absolute right-0 top-full mt-3 w-80 bg-[#090d16]/95 backdrop-blur-2xl border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden z-50 p-2 space-y-1 hidden opacity-0 scale-95 transition-all duration-200 origin-top-right">
+                    <div class="px-3 py-2 border-b border-white/[0.04] mb-1 flex items-center justify-between">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest font-black">Activity Hub</p>
+                        <button onclick="clearAllNotificationsUI(event)" class="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold focus:outline-none cursor-pointer">Dismiss All</button>
+                    </div>
+                    <div id="notificationFeedList" class="max-h-64 overflow-y-auto space-y-1 pr-0.5 terms-scroll">
+                        <div class="py-8 text-center text-slate-500 text-xs font-medium">
+                            <i class="fa-regular fa-bell-slash mb-2 text-lg text-slate-600 block"></i> No fresh updates logged on this channel.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RELATIVE INTERACTIVE DROPDOWN ROOT LAYER -->
+            <div class="relative pl-2 border-l border-white/10 flex items-center">
+                <div id="navbarUserDropdownTrigger" class="flex items-center gap-3 cursor-pointer group">
+                    <div id="navbarAvatarOuterFrame" class="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-[2px] shadow-lg transition-transform duration-300 group-hover:scale-105 overflow-hidden flex items-center justify-center">
+                        <div id="navbarUserAvatar" class="h-full w-full bg-[#040711] rounded-[10px] flex items-center justify-center font-bold text-xs text-white overflow-hidden">G</div>
+                    </div>
+                    <i id="navbarChevronIcon" class="fa-solid fa-chevron-down text-xs text-slate-500 group-hover:text-slate-300 transition-transform duration-250"></i>
+                </div>
+
+                <div id="navbarUserDropdownMenu" class="absolute right-0 top-full mt-3 w-72 bg-[#090d16]/95 backdrop-blur-2xl border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden z-50 p-4 space-y-3 hidden opacity-0 scale-95 transition-all duration-200 origin-top-right">
+                    <div class="px-1 py-0.5 border-b border-white/[0.04] pb-2">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest font-black">Session Deck</p>
+                        <p id="dropdownAccountName" class="text-xs font-bold text-slate-200 truncate mt-0.5">Guest Explorer</p>
+                    </div>
+
+                    <div class="px-1 space-y-2">
+                        <p class="text-[9px] text-slate-400 uppercase tracking-wider font-extrabold flex items-center gap-1">
+                            <i class="fa-solid fa-masks-theater text-[8px] text-indigo-400"></i> Select Cartoon Identity
+                        </p>
+                        <div class="grid grid-cols-5 gap-2 pt-0.5">
+                            <img onclick="changeUserCartoonAvatar('https://api.dicebear.com/7.x/bottts/svg?seed=Felix&backgroundColor=6366f1', event)" src="https://api.dicebear.com/7.x/bottts/svg?seed=Felix&backgroundColor=6366f1" class="h-9 w-9 rounded-xl border border-white/10 hover:border-indigo-400 hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer bg-slate-900 p-1" title="Cyber Bot">
+                            <img onclick="changeUserCartoonAvatar('https://api.dicebear.com/7.x/pixel-art/svg?seed=John&backgroundColor=ec4899', event)" src="https://api.dicebear.com/7.x/pixel-art/svg?seed=John&backgroundColor=ec4899" class="h-9 w-9 rounded-xl border border-white/10 hover:border-pink-400 hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer bg-slate-900" title="Pixel Hero">
+                            <img onclick="changeUserCartoonAvatar('https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka&backgroundColor=10b981', event)" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka&backgroundColor=10b981" class="h-9 w-9 rounded-xl border border-white/10 hover:border-emerald-400 hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer bg-slate-900" title="Explorer">
+                            <img onclick="changeUserCartoonAvatar('https://api.dicebear.com/7.x/personas/svg?seed=Leo&backgroundColor=f59e0b', event)" src="https://api.dicebear.com/7.x/personas/svg?seed=Leo&backgroundColor=f59e0b" class="h-9 w-9 rounded-xl border border-white/10 hover:border-amber-400 hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer bg-slate-900" title="Anime Maverick">
+                            <img onclick="changeUserCartoonAvatar('https://api.dicebear.com/7.x/identicon/svg?seed=Shadow&backgroundColor=8b5cf6', event)" src="https://api.dicebear.com/7.x/identicon/svg?seed=Shadow&backgroundColor=8b5cf6" class="h-9 w-9 rounded-xl border border-white/10 hover:border-violet-400 hover:scale-110 active:scale-95 transition-all duration-150 cursor-pointer bg-slate-900 p-0.5" title="Cosmic Sigil">
+                        </div>
+                    </div>
+                    <hr class="border-white/[0.04]">
+                    <div class="space-y-0.5">
+                        <div onclick="switchMenuTab('favorites', true); closeNavbarDropdown();" class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/[0.04] cursor-pointer transition-all group/item">
+                            <i class="fa-solid fa-heart text-rose-500/70 text-center w-4 group-hover/item:scale-110 transition-transform"></i> My Favorites
+                        </div>
+                        <div onclick="switchMenuTab('watchlist', true); closeNavbarDropdown();" class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/[0.04] cursor-pointer transition-all group/item">
+                            <i class="fa-solid fa-bookmark text-indigo-400/70 text-center w-4 group-hover/item:scale-110 transition-transform"></i> Watch Later List
+                        </div>
+                    </div>
+                    <hr class="border-white/[0.04]">
+                    <div id="dropdownAuthActionBtn" class="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-bold text-indigo-400 hover:text-rose-400 hover:bg-rose-500/10 cursor-pointer transition-all">
+                        <i class="fa-solid fa-right-to-bracket text-center w-4"></i> <span>Sign In Account</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Master Workspace Grid Partition Structure -->
+    <div class="w-full flex">
+        
+        <!-- Sidebar Navigation Deck -->
+        <aside class="hidden xl:flex flex-col w-64 h-[calc(100vh-73px)] sticky top-[73px] bg-[#040711]/10 backdrop-blur-3xl border-r border-white/[0.02] p-4 justify-between z-30 select-none">
+            <div class="space-y-6 overflow-y-auto pr-1 scrollbar-hide h-[calc(100%-80px)]">
+                
+                <div class="space-y-1" id="menuDirectory">
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-widest px-3.5 block mb-2">Menu Directory</span>
+                    
+                    <div id="menu-discover" class="nav-item active flex items-center gap-3.5 px-3.5 py-2.5 text-indigo-400 rounded-xl font-bold text-sm transition-all duration-300 text-left cursor-pointer group">
+                        <div class="nav-icon-box flex items-center justify-center w-5 h-5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 group-hover:bg-indigo-500/20 transition-all">
+                            <i class="fa-solid fa-compass text-sm"></i>
+                        </div>
+                        <span class="tracking-wide">Discover Feed</span>
+                        <div class="active-indicator absolute left-0 w-1 h-5 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-r-full shadow-[0_0_12px_#6366f1]"></div>
+                    </div>
+                    
+                    <div id="menu-trending" class="nav-item flex items-center gap-3.5 px-3.5 py-2.5 text-slate-400 rounded-xl font-medium text-sm transition-all duration-300 text-left cursor-pointer group hover:text-white">
+                        <div class="nav-icon-box flex items-center justify-center w-5 h-5 rounded-lg bg-white/[0.02] border border-white/[0.04] group-hover:border-white/10 transition-all">
+                            <i class="fa-solid fa-fire text-sm group-hover:text-orange-400 transition-colors"></i>
+                        </div>
+                        <span class="tracking-wide">Trending Pack</span>
+                        <div class="active-indicator absolute left-0 w-1 h-5 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-r-full shadow-[0_0_12px_#6366f1] opacity-0 scale-y-0 transition-all"></div>
+                    </div>
+                    
+                    <div id="menu-top-rated" class="nav-item flex items-center gap-3.5 px-3.5 py-2.5 text-slate-400 rounded-xl font-medium text-sm transition-all duration-300 text-left cursor-pointer group hover:text-white">
+                        <div class="nav-icon-box flex items-center justify-center w-5 h-5 rounded-lg bg-white/[0.02] border border-white/[0.04] group-hover:border-white/10 transition-all">
+                            <i class="fa-solid fa-award text-sm group-hover:text-amber-400 transition-colors"></i>
+                        </div>
+                        <span class="tracking-wide">Top Rated</span>
+                        <div class="active-indicator absolute left-0 w-1 h-5 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-r-full shadow-[0_0_12px_#6366f1] opacity-0 scale-y-0 transition-all"></div>
+                    </div>
+
+                    <div id="menu-watchlist" class="nav-item flex items-center gap-3.5 px-3.5 py-2.5 text-slate-400 rounded-xl font-medium text-sm transition-all duration-300 text-left cursor-pointer group hover:text-white">
+                        <div class="nav-icon-box flex items-center justify-center w-5 h-5 rounded-lg bg-white/[0.02] border border-white/[0.04] group-hover:border-white/10 transition-all">
+                            <i class="fa-solid fa-bookmark text-sm group-hover:text-indigo-400 transition-colors"></i>
+                        </div>
+                        <span class="tracking-wide">Watch Later</span>
+                        <div class="active-indicator absolute left-0 w-1 h-5 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-r-full shadow-[0_0_12px_#6366f1] opacity-0 scale-y-0 transition-all"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-widest px-3.5 block mb-2">Filter Genres</span>
+                    <div class="flex flex-col space-y-1" id="genreFilterGroup">
+                        <div data-genre-id="28" class="genre-row flex items-center gap-3.5 px-3.5 py-2.5 text-slate-400 rounded-xl font-medium text-sm transition-all duration-300 text-left cursor-pointer group hover:text-white">
+                            <div class="genre-icon-box flex items-center justify-center w-5 h-5 rounded-lg bg-white/[0.01] border border-white/[0.03] group-hover:border-indigo-500/30 group-hover:bg-indigo-500/10 transition-all">
+                                <i class="fa-solid fa-gun text-xs text-slate-500 group-hover:text-indigo-400 transition-colors"></i>
+                            </div>
+                            <span class="tracking-wide">Action & Warfare</span>
+                        </div>
+                        <div data-genre-id="878" class="genre-row flex items-center gap-3.5 px-3.5 py-2.5 text-slate-400 rounded-xl font-medium text-sm transition-all duration-300 text-left cursor-pointer group hover:text-white">
+                            <div class="genre-icon-box flex items-center justify-center w-5 h-5 rounded-lg bg-white/[0.01] border border-white/[0.03] group-hover:border-purple-500/30 group-hover:bg-purple-500/10 transition-all">
+                                <i class="fa-solid fa-flask-vial text-xs text-slate-500 group-hover:text-purple-400 transition-colors"></i>
+                            </div>
+                            <span class="tracking-wide">Sci-Fi Realism</span>
+                        </div>
+                        <div data-genre-id="18" class="genre-row flex items-center gap-3.5 px-3.5 py-2.5 text-slate-400 rounded-xl font-medium text-sm transition-all duration-300 text-left cursor-pointer group hover:text-white">
+                            <div class="genre-icon-box flex items-center justify-center w-5 h-5 rounded-lg bg-white/[0.01] border border-white/[0.03] group-hover:border-pink-500/30 group-hover:bg-pink-500/10 transition-all">
+                                <i class="fa-solid fa-masks-theater text-xs text-slate-500 group-hover:text-pink-400 transition-colors"></i>
+                            </div>
+                            <span class="tracking-wide">Drama Cinema</span>
+                        </div>
+                        <div data-genre-id="53" class="genre-row flex items-center gap-3.5 px-3.5 py-2.5 text-slate-400 rounded-xl font-medium text-sm transition-all duration-300 text-left cursor-pointer group hover:text-white">
+                            <div class="genre-icon-box flex items-center justify-center w-5 h-5 rounded-lg bg-white/[0.01] border border-white/[0.03] group-hover:border-rose-500/30 group-hover:bg-rose-500/10 transition-all">
+                                <i class="fa-solid fa-skull-crossbones text-xs text-slate-500 group-hover:text-rose-400 transition-colors"></i>
+                            </div>
+                            <span class="tracking-wide">Thriller Slasher</span>
+                        </div>
+                        <div data-genre-id="14" class="genre-row flex items-center gap-3.5 px-3.5 py-2.5 text-slate-400 rounded-xl font-medium text-sm transition-all duration-300 text-left cursor-pointer group hover:text-white">
+                            <div class="genre-icon-box flex items-center justify-center w-5 h-5 rounded-lg bg-white/[0.01] border border-white/[0.03] group-hover:border-amber-500/30 group-hover:bg-amber-500/10 transition-all">
+                                <i class="fa-solid fa-wand-magic-sparkles text-xs text-slate-500 group-hover:text-amber-400 transition-colors"></i>
+                            </div>
+                            <span class="tracking-wide">Fantasy Chronicles</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5 pt-1 border-t border-white/[0.03]">
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-widest px-3.5 block mb-2">Studio Utilities</span>
+                    <div id="util-news" class="nav-item flex items-center gap-3.5 px-3.5 py-2.5 text-slate-400 rounded-xl font-medium text-sm transition-all duration-300 cursor-pointer group hover:text-white" onclick="window.location.href='news.html'">
+                        <div class="nav-icon-box flex items-center justify-center w-5 h-5 rounded-lg bg-white/[0.02] border border-white/[0.04] group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10 transition-all">
+                            <i class="fa-regular fa-newspaper text-sm group-hover:text-emerald-400 transition-colors"></i>
+                        </div>
+                        <span class="tracking-wide flex-1">Hollywood News</span>
+                        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]"></span>
+                    </div>
+                    <div id="ambientToggleBtn" class="nav-item flex items-center gap-3.5 px-3.5 py-2.5 text-slate-400 rounded-xl font-medium text-sm transition-all duration-300 cursor-pointer group hover:text-white">
+                        <div class="nav-icon-box flex items-center justify-center w-5 h-5 rounded-lg bg-white/[0.02] border border-white/[0.04] group-hover:border-violet-500/30 group-hover:bg-violet-500/10 transition-all">
+                            <i id="ambientToggleIcon" class="fa-solid fa-moon text-sm text-violet-400 filter drop-shadow-[0_0_6px_rgba(167,139,250,0.4)]"></i>
+                        </div>
+                        <span id="ambientToggleText" class="tracking-wide">Ambient Glow: On</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-b from-white/[0.02] to-transparent border border-white/[0.04] backdrop-blur-xl p-3.5 rounded-2xl flex items-center justify-between group/user transition-all duration-300 hover:border-white/[0.08] hover:bg-white/[0.03] shadow-2xl relative overflow-hidden mt-4">
+                <div class="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 via-transparent to-transparent opacity-0 group-hover/user:opacity-100 transition-opacity duration-500"></div>
+                
+                <div class="flex items-center gap-3 cursor-pointer min-w-0 flex-1 relative z-10" onclick="switchMenuTab('watchlist', true)">
+                    <div class="relative flex-shrink-0">
+                        <div id="sidebarUserAvatar" class="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-violet-600 font-extrabold text-sm text-white flex items-center justify-center shadow-lg tracking-wider border border-white/10 group-hover/user:scale-105 transition-transform duration-300 overflow-hidden flex items-center justify-center">
+                            G
+                        </div>
+                        <span class="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-indigo-500 border-2 border-[#03050d] shadow-[0_0_8px_#6366f1]"></span>
+                    </div>
+                    
+                    <div class="flex flex-col min-w-0 overflow-hidden">
+                        <span id="sidebarUserName" class="text-xs font-bold text-slate-200 truncate group-hover/user:text-white transition-colors duration-300">Guest Explorer</span>
+                        <span id="sidebarUserStatus" class="text-[9px] text-slate-500 font-black tracking-widest uppercase mt-0.5 transition-colors">Limited Access</span>
+                    </div>
+                </div>
+                
+                <button id="sidebarAuthActionBtn" class="p-2 text-slate-500 hover:text-rose-400 rounded-xl hover:bg-white/[0.05] transition-all duration-300 flex-shrink-0 cursor-pointer relative z-10" title="Sign Out Securely">
+                    <i class="fa-solid fa-right-to-bracket text-sm text-indigo-400 filter drop-shadow-[0_0_4px_rgba(129,140,248,0.4)]"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Display Content Feed Canvas -->
+        <main class="flex-1 p-4 lg:p-8 space-y-12 overflow-x-hidden">
+            <section id="heroCarousel" class="relative w-full h-[55vh] rounded-3xl overflow-hidden shadow-2xl border border-white/[0.05] bg-[#040711]">
+                <div id="carouselAmbientBg" class="absolute inset-0 w-full h-full scale-110 blur-3xl opacity-20 pointer-events-none transition-all duration-700 ease-in-out"></div>
+                <div id="carouselSlidesContainer" class="w-full h-full relative z-10">
+                    <div class="absolute inset-0 flex items-center justify-center text-slate-500 text-sm">
+                        <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Syncing Premium Library Streams...
+                    </div>
+                </div>
+                <div id="carouselDots" class="absolute bottom-6 right-8 z-20 flex items-center gap-2"></div>
+            </section>
+
+            <section class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1 h-5 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full"></div>
+                        <h3 class="text-lg font-bold text-white tracking-tight">Highly Anticipated Coming Soon</h3>
+                    </div>
+                    <span class="text-xs font-semibold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">Upcoming Slate</span>
+                </div>
+                <div class="scrollbar-hide flex gap-5 overflow-x-auto pb-3 pt-1" id="upcomingSlider" style="-webkit-overflow-scrolling: touch;"></div>
+            </section>
+
+            <!-- DUAL GRID SECTION -->
+            <section class="space-y-12" id="discover-section">
+                <!-- Movies Section -->
+                <div>
+                    <div class="flex items-center gap-2 border-b border-white/[0.04] pb-4 mb-6">
+                        <div class="w-1 h-5 bg-indigo-500 rounded-full"></div>
+                        <h3 class="text-xl font-bold text-white tracking-tight" id="mainMovieHeaderTitle">Movies</h3>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="movieGrid"></div>
+                </div>
+
+                <!-- TV Series Section -->
+                <div>
+                    <div class="flex items-center gap-2 border-b border-white/[0.04] pb-4 mb-6">
+                        <div class="w-1 h-5 bg-purple-500 rounded-full"></div>
+                        <h3 class="text-xl font-bold text-white tracking-tight" id="mainSeriesHeaderTitle">TV Series</h3>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6" id="seriesGrid"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Sliding Preview Information Overlay Panel Drawer -->
+    <div id="detailDrawer" class="fixed top-0 right-0 h-full w-full sm:w-[450px] bg-[#090d16]/95 backdrop-blur-2xl border-l border-l-white/[0.05] shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-out p-6 flex flex-col justify-between hidden">
+        <div class="space-y-6 overflow-y-auto max-h-[85vh] pr-1 terms-scroll">
+            <div class="flex items-center justify-between border-b border-white/[0.04] pb-4">
+                <span class="text-xs uppercase font-extrabold tracking-widest text-indigo-400">Cinematic Insight</span>
+                <button onclick="closeDetailDrawer()" class="text-slate-400 hover:text-white transition-colors text-lg focus:outline-none cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div id="drawerMediaContainer" class="relative w-full aspect-video rounded-2xl overflow-hidden bg-slate-900 shadow-xl border border-white/10 flex items-center justify-center">
+                <img id="drawerImage" src="" class="w-full h-full object-cover" alt="">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#090d16] via-transparent to-black/30"></div>
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex items-center justify-between gap-4">
+                    <h3 id="drawerTitle" class="text-2xl font-bold text-white tracking-tight break-words">Movie Title</h3>
+                    <div class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 px-2 py-1 rounded-lg text-amber-400 text-xs font-bold flex-shrink-0">
+                        <i class="fa-solid fa-star"></i> <span id="drawerRating">0.0</span>
+                    </div>
+                </div>
+                <p id="drawerYear" class="text-xs font-bold text-slate-500">2026</p>
+                
+                <div class="flex gap-2 pt-1 flex-wrap items-center">
+                    <button id="drawerWatchlistBtn" class="px-3 py-1.5 bg-white/5 border border-white/10 text-[11px] font-bold rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-all flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-regular fa-bookmark"></i> Add to Watchlist
+                    </button>
+                    <!-- Streaming Provider Container -->
+                    <div id="drawerProviderContainer"></div>
+                </div>
+                
+                <p id="drawerDesc" class="text-sm text-slate-200 font-light leading-relaxed pt-2">Detailed synopsis mapping metrics over running application canvas loop view.</p>
+            </div>
+
+            <div class="space-y-3 pt-2">
+                <h4 class="text-xs font-bold uppercase tracking-widest text-slate-500">Starring Cast</h4>
+                <div class="flex flex-wrap gap-3" id="drawerCast"></div>
+            </div>
+
+            <!-- NEW: Streaming Platforms Section -->
+            <div class="space-y-3 pt-4 border-t border-white/[0.04]">
+                <h4 class="text-xs font-bold uppercase tracking-widest text-slate-500">Where to Watch</h4>
+                <div class="flex flex-wrap gap-3" id="drawerProviders"></div>
+            </div>
+
+        <div class="border-t border-white/[0.04] pt-4 flex gap-3 bg-[#090d16]/95">
+            <button onclick="closeDetailDrawer()" class="flex-1 py-3.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-bold transition-all active:scale-[0.99] cursor-pointer">Back to Collections</button>
+        </div>
+    </div>
+
+    <!-- Script Hooks Engine Compilation -->
+    <script src="js/dashboard.js"></script>
+    <script>
+        // --- 1. DYNAMIC NAVBAR NAVIGATION & DROPDOWN MANAGEMENT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const userTrigger = document.getElementById('navbarUserDropdownTrigger');
+            const userMenu = document.getElementById('navbarUserDropdownMenu');
+            const chevron = document.getElementById('navbarChevronIcon');
+            const dropdownName = document.getElementById('dropdownAccountName');
+            const dropdownActionBtn = document.getElementById('dropdownAuthActionBtn');
+
+            const notifTrigger = document.getElementById('navbarNotificationTrigger');
+            const notifMenu = document.getElementById('navbarNotificationMenu');
+            const alertDot = document.getElementById('notificationAlertDot');
+
+            const currentUserName = localStorage.getItem('cinekeep_user_name') || 'Guest Explorer';
+            const token = localStorage.getItem('cinekeep_auth_token');
+
+            if (dropdownName) dropdownName.innerText = currentUserName;
+            
+            const savedCartoon = localStorage.getItem('cinekeep_cartoon_avatar');
+            if (savedCartoon) {
+                window.changeUserCartoonAvatar(savedCartoon, null);
+            } else {
+                const navbarAvatar = document.getElementById('navbarUserAvatar');
+                if (navbarAvatar) navbarAvatar.innerText = currentUserName.trim().charAt(0).toUpperCase();
+            }
+
+            function toggleUserDropdown(event) {
+                event.stopPropagation();
+                window.closeNotificationMenu();
+
+                const isHidden = userMenu.classList.contains('hidden');
+                if (isHidden) {
+                    userMenu.classList.remove('hidden');
+                    if (chevron) chevron.classList.add('rotate-180');
+                    setTimeout(() => {
+                        userMenu.classList.remove('opacity-0', 'scale-95');
+                        userMenu.classList.add('opacity-100', 'scale-100');
+                    }, 10);
+                } else {
+                    window.closeNavbarDropdown();
+                }
+            }
+
+            window.closeNavbarDropdown = function() {
+                if (!userMenu || userMenu.classList.contains('hidden')) return;
+                userMenu.classList.remove('opacity-100', 'scale-100');
+                userMenu.classList.add('opacity-0', 'scale-95');
+                if (chevron) chevron.classList.remove('rotate-180');
+                setTimeout(() => userMenu.classList.add('hidden'), 200);
+            };
+
+            function toggleNotifDropdown(event) {
+                event.stopPropagation();
+                window.closeNavbarDropdown(); 
+                if (alertDot) alertDot.classList.add('hidden');
+
+                const isHidden = notifMenu.classList.contains('hidden');
+                if (isHidden) {
+                    notifMenu.classList.remove('hidden');
+                    setTimeout(() => {
+                        notifMenu.classList.remove('opacity-0', 'scale-95');
+                        notifMenu.classList.add('opacity-100', 'scale-100');
+                    }, 10);
+                    if (typeof window.renderNotificationsFeed === 'function') window.renderNotificationsFeed();
+                } else {
+                    window.closeNotificationMenu();
+                }
+            }
+
+            window.closeNotificationMenu = function() {
+                if (!notifMenu || notifMenu.classList.contains('hidden')) return;
+                notifMenu.classList.remove('opacity-100', 'scale-100');
+                notifMenu.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => notifMenu.classList.add('hidden'), 200);
+            };
+
+            if (userTrigger) userTrigger.addEventListener('click', toggleUserDropdown);
+            if (notifTrigger) notifTrigger.addEventListener('click', toggleNotifDropdown);
+
+            document.addEventListener('click', (e) => {
+                if (userMenu && !userMenu.contains(e.target) && !userTrigger.contains(e.target)) {
+                    window.closeNavbarDropdown();
+                }
+                if (notifMenu && !notifMenu.contains(e.target) && !notifTrigger.contains(e.target)) {
+                    window.closeNotificationMenu();
+                }
+            });
+
+            if (dropdownActionBtn) {
+                if (token) {
+                    dropdownActionBtn.querySelector('span').innerText = "Sign Out Securely";
+                    dropdownActionBtn.querySelector('i').className = "fa-solid fa-arrow-right-from-bracket text-center w-4";
+                    dropdownActionBtn.onclick = function() {
+                        localStorage.clear();
+                        window.location.reload();
+                    };
+                } else {
+                    dropdownActionBtn.querySelector('span').innerText = "Sign In / Register";
+                    dropdownActionBtn.querySelector('i').className = "fa-solid fa-right-to-bracket text-center w-4";
+                    dropdownActionBtn.onclick = function() {
+                        window.location.href = 'login.html';
+                    };
+                }
+            }
+        });
+
+        // --- 2. DYNAMIC CARTOON PICTURE IDENTITIES SELECTION SWAPPER ---
+        window.changeUserCartoonAvatar = function(imageUrl, event) {
+            if (event) event.stopPropagation(); 
+            
+            localStorage.setItem('cinekeep_cartoon_avatar', imageUrl);
+            
+            const navAvatarFrame = document.getElementById('navbarUserAvatar');
+            const sidebarAvatarFrame = document.getElementById('sidebarUserAvatar');
+            
+            const dynamicImgMarkup = `<img src="${imageUrl}" class="w-full h-full object-cover rounded-[10px]" alt="Cartoon Profile Avatar">`;
+            const dynamicSidebarMarkup = `<img src="${imageUrl}" class="w-full h-full object-cover rounded-xl" alt="Cartoon Profile Avatar">`;
+
+            if (navAvatarFrame) {
+                navAvatarFrame.innerHTML = dynamicImgMarkup;
+                navAvatarFrame.className = "h-full w-full bg-[#040711] rounded-[10px] flex items-center justify-center font-bold text-xs text-white overflow-hidden";
+            }
+            if (sidebarAvatarFrame) {
+                sidebarAvatarFrame.innerHTML = dynamicSidebarMarkup;
+                sidebarAvatarFrame.className = "h-9 w-9 rounded-xl font-extrabold text-sm text-white flex items-center justify-center shadow-lg tracking-wider border border-white/10 group-hover/user:scale-105 transition-transform duration-300 overflow-hidden flex items-center justify-center";
+            }
+        };
+
+        // --- 3. DYNAMIC NOTIFICATION LIST STREAM HANDLER OVERLAYS ---
+        const feedList = document.getElementById('notificationFeedList');
+        const alertDot = document.getElementById('notificationAlertDot');
+        let liveNotifications = [
+            { id: 1, icon: 'fa-clapperboard text-indigo-400 bg-indigo-500/10', title: 'System Engine Operational', detail: 'Connected successfully to local Spring Boot authorization node on port 8081.', time: 'Just Now' },
+            { id: 2, icon: 'fa-bolt text-amber-400 bg-amber-500/10', title: 'TMDB Data Synchronization Complete', detail: 'Fetched top weekly trending blueprints and anticipated trailer keys.', time: '5m ago' }
+        ];
+
+        window.renderNotificationsFeed = function() {
+            if (!feedList) return;
+            if (liveNotifications.length === 0) {
+                feedList.innerHTML = `
+                    <div class="py-8 text-center text-slate-500 text-xs font-medium">
+                        <i class="fa-regular fa-bell-slash mb-2 text-lg text-slate-600 block"></i> No fresh updates logged on this channel.
+                    </div>`;
+                return;
+            }
+
+            feedList.innerHTML = liveNotifications.map(notif => `
+                <div class="flex gap-3 p-2.5 rounded-xl hover:bg-white/[0.03] border border-transparent hover:border-white/[0.02] transition-all duration-200 group/notifItem">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-xs border border-white/5 ${notif.icon}">
+                        <i class="fa-solid ${notif.icon.split(' ')[0]}"></i>
+                    </div>
+                    <div class="flex-1 min-w-0 space-y-0.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-xs font-bold text-slate-200 truncate group-hover/notifItem:text-indigo-400 transition-colors">${notif.title}</p>
+                            <span class="text-[9px] text-slate-500 font-medium flex-shrink-0">${notif.time}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-light leading-normal break-words">${notif.detail}</p>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.clearAllNotificationsUI = function(event) {
+            if (event) event.stopPropagation();
+            liveNotifications = [];
+            window.renderNotificationsFeed();
+        };
+
+        window.pushNotificationAlert = function(iconClass, titleText, detailText) {
+            liveNotifications.unshift({
+                id: Date.now(),
+                icon: iconClass,
+                title: titleText,
+                detail: detailText,
+                time: 'Just Now'
+            });
+            if (alertDot) alertDot.classList.remove('hidden');
+        };
+
+        // --- 4. DETAIL DRAWER ACTION LISTENERS ---
+        document.getElementById('drawerWatchlistBtn')?.addEventListener('click', (event) => {
+            const button = document.getElementById('drawerWatchlistBtn');
+            const targetMovieId = button?.getAttribute('data-active-movie-id');
+            
+            if (targetMovieId && typeof handleWatchlistClick === 'function') {
+                handleWatchlistClick(event, targetMovieId);
+                
+                const localWatch = JSON.parse(localStorage.getItem('cinekeep_local_watchlist')) || [];
+                const isSaved = localWatch.includes(String(targetMovieId));
+                button.innerHTML = isSaved 
+                    ? `<i class="fa-solid fa-bookmark text-indigo-400"></i> Bookmarked`
+                    : `<i class="fa-regular fa-bookmark"></i> Add to Watchlist`;
+            } else {
+                alert("Please select a title card directly from the main grids to add it to your Watch Later shelf.");
+            }
+        });
+    </script>
+</body>
+</html>

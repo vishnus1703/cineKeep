@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineKeep - My Watchlist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/global.css">
+</head>
+<body class="min-h-screen bg-[#040711] text-slate-100 font-sans antialiased">
+
+    <header class="border-b border-white/5 bg-[#040711]/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <a href="dashboard.html" class="p-2 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all text-xs">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Back to Deck
+            </a>
+            <h1 class="text-xl font-black tracking-tight text-white flex items-center gap-2">
+                <i class="fa-regular fa-clock text-indigo-400"></i> My Watch Later Sanctuary
+            </h1>
+        </div>
+        <div class="text-xs text-slate-500 font-bold bg-white/[0.02] border border-white/5 px-3 py-1.5 rounded-xl">
+            Total Bookmarks: <span id="watchlistCount" class="text-indigo-400 ml-1">0</span>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 md:p-8 space-y-6">
+        <div id="watchlistGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 opacity-0 transition-all duration-500 transform translate-y-4">
+            </div>
+    </main>
+
+    <script src="js/watchlist.js" type="module"></script>
+</body>
+</html>

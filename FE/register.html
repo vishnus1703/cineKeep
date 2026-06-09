@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineKeep - Create Account</title>
+    
+    <!-- Premium Global Core Link Layers -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Project Modular Architectural Stylesheet Linking -->
+    <link rel="stylesheet" href="css/global.css">
+</head>
+<body class="min-h-screen w-full flex bg-[#0f172a] text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Brand Sidebar Showcase Hero Area -->
+    <div class="hidden lg:flex lg:w-1/2 relative items-center justify-center bg-cover bg-center overflow-hidden" 
+         style="background-image: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1025&auto=format&fit=crop');">
+        
+        <div class="absolute inset-0 bg-gradient-to-tr from-[#0f172a] via-[#0f172a]/80 to-transparent z-10"></div>
+        <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-indigo-600/20 rounded-full blur-3xl z-0 animate-pulse"></div>
+        
+        <div class="relative z-20 max-w-md p-8 text-left">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/30">
+                    <i class="fa-solid fa-film text-xl text-white"></i>
+                </div>
+                <span class="text-2xl font-bold tracking-wider bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">CineKeep</span>
+            </div>
+            <h1 class="text-4xl font-extrabold tracking-tight leading-tight mb-4">
+                Your Ultimate Personal <br>
+                <span class="bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">Movie Sanctuary.</span>
+            </h1>
+            <p class="text-slate-400 text-lg font-light leading-relaxed">
+                Track your watchlists, curate your all-time favorites, and explore thousands of cinematic masterpieces seamlessly.
+            </p>
+        </div>
+    </div>
+
+    <!-- Registration Interface Form Area -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 md:p-16 bg-[#090d16]">
+        <div class="w-full max-w-md space-y-8">
+            
+            <div class="text-center lg:text-left">
+                <h2 class="text-3xl font-bold tracking-tight text-white mb-2">Create Account</h2>
+                <p class="text-sm text-slate-400">Join CineKeep today and start curating your collections.</p>
+            </div>
+
+            <form id="registerForm" class="space-y-6">
+                
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Username</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                            <i class="fa-regular fa-user text-lg"></i>
+                        </div>
+                        <input
+                            type="text"
+                            id="username"
+                            required
+                            placeholder="Enter username"
+                            class="w-full pl-12 pr-4 py-3.5 bg-[#131a2a] border border-slate-800 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+                        >
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Email Address</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                            <i class="fa-regular fa-envelope text-lg"></i>
+                        </div>
+                        <input
+                            type="email"
+                            id="email"
+                            required
+                            placeholder="name@example.com"
+                            class="w-full pl-12 pr-4 py-3.5 bg-[#131a2a] border border-slate-800 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+                        >
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Password</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                            <i class="fa-solid fa-lock text-lg"></i>
+                        </div>
+                        <input
+                            type="password"
+                            id="password"
+                            required
+                            placeholder="••••••••"
+                            class="w-full pl-12 pr-12 py-3.5 bg-[#131a2a] border border-slate-800 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200"
+                        >
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+                        >
+                            <i id="eyeIcon" class="fa-regular fa-eye text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <input
+                        id="terms"
+                        type="checkbox"
+                        required
+                        class="w-4 h-4 rounded bg-[#131a2a] border-slate-800 text-indigo-600 focus:ring-indigo-500/20 focus:ring-offset-0 accent-indigo-600 cursor-pointer"
+                    >
+                    <label for="terms" class="ml-2 text-sm text-slate-400 select-none">
+                        I agree to the <button type="button" id="openTermsBtn" class="text-indigo-400 hover:underline cursor-pointer focus:outline-none">Terms of Service</button>
+                    </label>
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/20 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-[#090d16] transform active:scale-[0.99] transition-all duration-150"
+                >
+                    Get Started
+                </button>
+            </form>
+
+            <p class="text-center text-sm text-slate-500">
+                Already have an account? 
+                <a href="login.html" class="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">Sign in</a>
+            </p>
+
+        </div>
+    </div>
+
+    <!-- Legal Terms and Conditions Modal Popup Box -->
+    <div id="termsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 opacity-0 pointer-events-none transition-opacity duration-300 backdrop-blur-sm">
+        <div class="w-full max-w-xl bg-[#0f172a] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="modalCard">
+            
+            <div class="flex items-center justify-between p-6 border-b border-slate-800 bg-[#131a2a]">
+                <div class="flex items-center gap-2 text-indigo-400">
+                    <i class="fa-solid fa-scale-balanced text-xl"></i>
+                    <h3 class="text-xl font-bold text-white">Terms of Service</h3>
+                </div>
+                <button type="button" id="closeTermsHeaderBtn" class="text-slate-400 hover:text-white transition-colors focus:outline-none text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4 max-h-[60vh] overflow-y-auto text-slate-300 text-sm leading-relaxed terms-scroll">
+                <p class="text-xs text-slate-500 italic">Last updated: June 2026</p>
+                
+                <h4 class="font-bold text-white text-base">1. Acceptance of Terms</h4>
+                <p>By creating an account on CineKeep, you agree to comply with and be bound by these Terms of Service. If you do not accept these configurations, you are prohibited from utilizing the catalog.</p>
+                
+                <h4 class="font-bold text-white text-base">2. User Accounts & Privacy</h4>
+                <p>You are solely responsible for maintaining the privacy of your account credentials. All activities logged under your generated profile are your legal accountability. CineKeep reserves the right to manage or terminate anomalous sessions.</p>
+                
+                <h4 class="font-bold text-white text-base">3. Movie Content & Metadata Tracking</h4>
+                <p>CineKeep aggregates movie collections via curated public utility engines (such as the TMDB API). We do not claim dynamic intellectual copyrights on movie imagery, plot synopses, or cinematic titles fetched over external server channels.</p>
+
+                <h4 class="font-bold text-white text-base">4. Acceptable System Behavior</h4>
+                <p>Users are forbidden from automated scraping pipelines or running unauthorized request loops targeting our hosted backend routing servers.</p>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 p-4 bg-[#090d16] border-t border-slate-800">
+                <button type="button" id="closeTermsFooterBtn" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium text-sm transition-colors focus:outline-none">
+                    Close
+                </button>
+                <button type="button" id="acceptTermsBtn" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl font-medium text-sm transition-all focus:outline-none shadow-md shadow-indigo-600/10">
+                    Accept & Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Core Modular Business Script Controller Linking -->
+    <script src="js/register.js"></script>
+</body>
+</html>
