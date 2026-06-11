@@ -1,7 +1,7 @@
 /* ==========================================================================
    CINEKEEP FULL-STACK PREMIUM LOGIN LOGIC SESSION CONTROLLER
    ========================================================================== */
-
+const API_BASE_URL = "https://cinekeep.onrender.com";
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
 
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Forward credentials payload packet downstream to your LoginRequest Record map
             // CRITICAL SYNC: We pass inputIdentifier as "username" to satisfy the Spring Boot constraints!
-            const response = await fetch('http://localhost:8081/api/auth/login', {
+            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

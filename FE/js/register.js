@@ -1,7 +1,7 @@
 /* ==========================================================================
    CINEKEEP FULL-STACK PREMIUM REGISTRATION CORE ENGINE CONTROLLER
    ========================================================================== */
-
+const API_BASE_URL = "https://cinekeep.onrender.com";
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. CORE ELEMENT ANCHORS ---
     const registerForm = document.getElementById('registerForm');
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Deliver JSON payload structure directly over your local port 8081 mapping
-            const response = await fetch('http://localhost:8081/api/auth/register', {
+            const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
