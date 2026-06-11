@@ -126,6 +126,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- SAFE GLOBAL EVENT DELEGATION LISTENER FOR MEDIA CARDS ---
+    document.addEventListener('click', (e) => {
+        const card = e.target.closest('.media-card-item');
+        // Prevent action if clicking the embedded action shortcut toggle buttons
+        if (!card || e.target.closest('button')) return; 
+
+        const id = card.getAttribute('data-id');
+        const title = card.getAttribute('data-title');
+        const year = card.getAttribute('data-year');
+        const rating = card.getAttribute('data-rating');
+        const overview = card.getAttribute('data-overview');
+        const poster = card.getAttribute('data-poster');
+        const type = card.getAttribute('data-type');
+
+        if (typeof window.openDetailDrawer === 'function') {
+            window.openDetailDrawer(id, title, year, rating, overview, poster, type);
+        }
+    });
+
     // Initialize System Core Lifecycle Hooks
     switchMenuTab('discover', false); 
     if (sliderContainer) {
@@ -548,8 +567,9 @@ function appendSingleMediaCard(item, type, targetGrid) {
     const rating = item.vote_average ? item.vote_average.toFixed(1) : '0.0';
     const poster = item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500';
     
+    // Clean strings aggressively to prevent broken attributes
     const cleanTitle = title.replace(/'/g, "\\'").replace(/"/g, '\\"');
-    let cleanOverview = item.overview ? item.overview.replace(/'/g, "\\'").replace(/"/g, '\\"') : "No description.";
+    let cleanOverview = item.overview ? item.overview.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, ' ') : "No description.";
 
     const localFavs = JSON.parse(localStorage.getItem('cinekeep_local_favs')) || [];
     const isFavorited = localFavs.includes(String(item.id));
@@ -560,9 +580,16 @@ function appendSingleMediaCard(item, type, targetGrid) {
     const watchBtnAccentClass = isWatchlisted ? 'text-indigo-400' : 'text-slate-400';
     const watchIconClass = isWatchlisted ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark';
 
+    // FIX: Using data attributes on the card wrapper to prevent string injection breaks
     const cardHTML = `
-        <div class="group relative bg-white/[0.01] border border-white/[0.04] rounded-2xl overflow-hidden transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.02] flex flex-col justify-between cursor-pointer shadow-xl" 
-             onclick="openDetailDrawer('${item.id}', '${cleanTitle}', '${year}', '${rating}', '${cleanOverview}', '${poster}', '${type}')">
+        <div class="group relative bg-white/[0.01] border border-white/[0.04] rounded-2xl overflow-hidden transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.02] flex flex-col justify-between cursor-pointer shadow-xl media-card-item" 
+             data-id="${item.id}"
+             data-title="${cleanTitle}"
+             data-year="${year}"
+             data-rating="${rating}"
+             data-overview="${cleanOverview}"
+             data-poster="${poster}"
+             data-type="${type}">
             
             <div class="relative aspect-[2/3] w-full overflow-hidden rounded-xl bg-slate-900 m-1.5">
                 <img src="${poster}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="">
@@ -652,14 +679,30 @@ function renderUpcomingSlider(movies) {
 }
 
 // ==========================================
-// AUXILIARY CREDIT DETAILS & TRAILER UTILITIES
+// OPTIMIZED VIDEO & TRAILER KEY FALLBACK UTILITIES
 // ==========================================
 async function fetchMovieTrailerKey(movieId, currentType = 'movie') {
     try {
         const response = await fetch(`${BASE_URL}/${currentType}/${movieId}/videos?language=en-US`, apiOptions);
         const data = await response.json();
-        const trailer = data.results && data.results.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser'));
-        return trailer ? trailer.key : null;
+        
+        if (!data.results || data.results.length === 0) {
+            // FALLBACK STEP 1: Try fetching without language constraints if US locale is empty
+            const rawResponse = await fetch(`${BASE_URL}/${currentType}/${movieId}/videos`, apiOptions);
+            const rawData = await rawResponse.json();
+            if (!rawData.results || rawData.results.length === 0) return null;
+            data.results = rawData.results;
+        }
+        
+        // Strategy A: Strict match for YouTube Trailers or Teasers
+        let video = data.results.find(v => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser'));
+        
+        // Strategy B fallback: If the movie has no specific trailer tag, grab the first available clip/video node
+        if (!video) {
+            video = data.results.find(v => v.site === 'YouTube' && v.key);
+        }
+        
+        return video ? video.key : null;
     } catch (error) {
         console.error("Trailer parameter lookup error:", error);
         return null;
@@ -717,7 +760,7 @@ async function fetchAndRenderProviders(mediaId, currentType = 'movie') {
         const regionData = data.results && (data.results['US'] || data.results['IN'] || Object.values(data.results)[0]);
         
         if (!regionData || (!regionData.flatrate && !regionData.link)) {
-            dProviders.innerHTML = `<div class="text-xs text-slate-500 font-medium">Currently unavailable to stream.</div>`;
+            dProviders.innerHTML = `<div class="text-xs text-slate-500 font-medium bg-white/[0.01] border border-white/[0.02] p-2.5 rounded-xl w-full"><i class="fa-solid fa-triangle-exclamation text-amber-500/70 mr-1.5"></i>No active streaming provider indices recorded.</div>`;
             return;
         }
 
@@ -878,10 +921,9 @@ function initializeUserSession() {
     }
 }
 
-/// ==========================================
+// ==========================================
 // REAL-TIME BACKEND SYNC PIPELINES
 // ==========================================
-
 window.toggleFavoriteState = async function(event, movieId) {
     if (event) event.stopPropagation(); 
     
