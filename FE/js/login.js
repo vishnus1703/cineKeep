@@ -2,6 +2,7 @@
    CINEKEEP FULL-STACK PREMIUM LOGIN LOGIC SESSION CONTROLLER
    ========================================================================== */
 const API_BASE_URL = "https://cinekeep.onrender.com";
+
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
 
@@ -52,17 +53,18 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Forward credentials payload packet downstream to your LoginRequest Record map
             // CRITICAL SYNC: We pass inputIdentifier as "username" to satisfy the Spring Boot constraints!
-            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: inputIdentifier,
-                    password: password
-                })
-            });
+           // --- AFTER (The Fix) ---
+const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+        username: inputIdentifier,
+        password: password
+    }) // <-- Fixed! Added the missing ')' to properly close JSON.stringify
+});
 
             const textData = await response.text();
             let authData;
@@ -77,9 +79,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('cinekeep_auth_token', authData.token);
                 localStorage.setItem('cinekeep_user_name', authData.username);
 
-                // 2. Query your new MediaController data engine to pull down saved lists
+                // 2. Query your deployed MediaController data engine to pull down saved lists
                 try {
-                    const collectionResponse = await fetch('http://localhost:8081/api/media/user-data', {
+                    // FIX: Replaced http://localhost:8081 with your production API_BASE_URL string
+                    const collectionResponse = await fetch(`${API_BASE_URL}/api/media/user-data`, {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${authData.token}`

@@ -5,6 +5,7 @@
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 const BACKDROP_BASE_URL = "https://image.tmdb.org/t/p/w1280";
+const LIVE_BACKEND_URL = "https://cinekeep.onrender.com";
 
 const apiOptions = {
     method: 'GET',
@@ -344,7 +345,6 @@ async function fetchGenreMovies(genreId, genreName) {
         movieGrid.style.opacity = '1'; seriesGrid.style.opacity = '1';
         
         try {
-            // FIX: TMDB uses different IDs for TV shows. This maps your HTML movie IDs to the correct TV IDs.
             const tvGenreMap = {
                 '28': '10759', // Action -> Action & Adventure
                 '878': '10765', // Sci-Fi -> Sci-Fi & Fantasy
@@ -353,7 +353,6 @@ async function fetchGenreMovies(genreId, genreName) {
                 '14': '10765'  // Fantasy -> Sci-Fi & Fantasy
             };
             
-            // Translate the ID, or fallback to the original if no mapping exists
             const tvGenreId = tvGenreMap[String(genreId)] || genreId;
 
             const [movieRes, tvRes] = await Promise.all([
@@ -715,7 +714,6 @@ async function fetchAndRenderProviders(mediaId, currentType = 'movie') {
         const data = await response.json();
         dProviders.innerHTML = '';
         
-        // Check for US first, fallback to India, then whatever else is available
         const regionData = data.results && (data.results['US'] || data.results['IN'] || Object.values(data.results)[0]);
         
         if (!regionData || (!regionData.flatrate && !regionData.link)) {
@@ -880,7 +878,7 @@ function initializeUserSession() {
     }
 }
 
-// ==========================================
+/// ==========================================
 // REAL-TIME BACKEND SYNC PIPELINES
 // ==========================================
 
@@ -922,9 +920,9 @@ window.toggleFavoriteState = async function(event, movieId) {
         switchMenuTab('favorites', false);
     }
 
-    // 2. BACKEND SYNC: Securely POST the update to your Spring Boot node
+    // 2. BACKEND SYNC: Securely POST the update to your live production Render node
     try {
-        const response = await fetch('http://localhost:8081/api/media/favorite', {
+        const response = await fetch(`${LIVE_BACKEND_URL}/api/media/favorite`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -973,9 +971,9 @@ window.handleWatchlistClick = async function(event, movieId) {
     localStorage.setItem('cinekeep_local_watchlist', JSON.stringify(localWatch));
     if (watchHeaderBadge) watchHeaderBadge.innerText = localWatch.length;
 
-    // 2. BACKEND SYNC: Securely POST the update to your Spring Boot node
+    // 2. BACKEND SYNC: Securely POST the update to your live production Render node
     try {
-        const response = await fetch('http://localhost:8081/api/media/watchlist', {
+        const response = await fetch(`${LIVE_BACKEND_URL}/api/media/watchlist`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -2,6 +2,7 @@
    CINEKEEP FULL-STACK PREMIUM REGISTRATION CORE ENGINE CONTROLLER
    ========================================================================== */
 const API_BASE_URL = "https://cinekeep.onrender.com";
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. CORE ELEMENT ANCHORS ---
     const registerForm = document.getElementById('registerForm');
@@ -107,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Initializing Sanctuary...`;
 
         try {
-            // Deliver JSON payload structure directly over your local port 8081 mapping
+            // Deliver JSON payload structure directly over your production environment
             const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: {
@@ -141,11 +142,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error("Critical communication failure on registration runtime handler:", error);
-            alert("Network Error: Core security hub server unreachable. Ensure your Spring Boot application is alive on port 8081.");
+            // FIX: Polished production text instead of internal port reference alerts
+            alert("Network Error: Core security hub server unreachable. Please verify your connection or try again shortly.");
         } finally {
             // Reset button tracking status fields back to baseline operational structures
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonHTML;
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonHTML;
+            }
         }
     });
 });

@@ -4,6 +4,7 @@
 
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
+const LIVE_BACKEND_URL = "https://cinekeep.onrender.com";
 
 const apiOptions = {
     method: 'GET',
@@ -59,7 +60,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!grid) return;
 
     try {
-        const response = await fetch(`${BASE_URL}/search/movie?query=${encodeURIComponent(initialQuery)}&language=en-US&page=1`, apiOptions);
+        // Optimized to multi-search to pull both matching Movies and TV show nodes down together
+        const response = await fetch(`${BASE_URL}/search/multi?query=${encodeURIComponent(initialQuery)}&language=en-US&page=1`, apiOptions);
         const data = await response.json();
         
         if (!data.results || data.results.length === 0) {
@@ -68,8 +70,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         grid.innerHTML = '';
-        data.results.forEach(movie => {
-            appendMovieResultCard(grid, movie);
+        data.results.forEach(item => {
+            if (item.media_type === 'movie' || item.media_type === 'tv') {
+                appendMovieResultCard(grid, item);
+            }
         });
 
     } catch (error) {
@@ -82,38 +86,40 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // --- RENDER CARD COMPONENTS WITH OVERLAY ACTION SHORTCUT BUTTONS ---
-function appendMovieResultCard(container, movie) {
-    const title = movie.title || movie.original_title || "Unknown Title";
-    const year = movie.release_date ? movie.release_date.split('-')[0] : "Coming Soon";
-    const rating = movie.vote_average ? movie.vote_average.toFixed(1) : '0.0';
-    const poster = movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500';
-    let cleanOverview = movie.overview ? movie.overview.replace(/'/g, "\\'").replace(/"/g, '\\"') : "No description listed.";
+function appendMovieResultCard(container, item) {
+    const type = item.media_type || 'movie';
+    const title = item.title || item.name || item.original_title || "Unknown Title";
+    const dateSource = item.release_date || item.first_air_date;
+    const year = dateSource ? dateSource.split('-')[0] : "Coming Soon";
+    const rating = item.vote_average ? item.vote_average.toFixed(1) : '0.0';
+    const poster = item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=500';
+    let cleanOverview = item.overview ? item.overview.replace(/'/g, "\\'").replace(/"/g, '\\"') : "No description listed.";
 
     // Sync individual active styling metrics from state sets
     const localFavs = JSON.parse(localStorage.getItem('cinekeep_local_favs')) || [];
-    const isFavorited = localFavs.includes(String(movie.id));
+    const isFavorited = localFavs.includes(String(item.id));
     const favClass = isFavorited ? 'text-rose-500' : 'text-slate-400';
 
     const localWatch = JSON.parse(localStorage.getItem('cinekeep_local_watchlist')) || [];
-    const isWatchlisted = localWatch.includes(String(movie.id));
+    const isWatchlisted = localWatch.includes(String(item.id));
     const watchClass = isWatchlisted ? 'text-indigo-400 fa-solid' : 'text-slate-400 fa-regular';
 
     const cardHTML = `
         <div class="group relative bg-white/[0.01] border border-white/[0.04] rounded-2xl overflow-hidden transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.02] flex flex-col justify-between cursor-pointer shadow-xl"
-             onclick="openSearchDetailDrawer('${movie.id}', '${title.replace(/'/g, "\\'")}', '${year}', '${rating}', '${cleanOverview}', '${poster}')">
+             onclick="openSearchDetailDrawer('${item.id}', '${title.replace(/'/g, "\\'")}', '${year}', '${rating}', '${cleanOverview}', '${poster}', '${type}')">
             
             <div class="relative aspect-[2/3] w-full overflow-hidden rounded-xl bg-slate-900 m-1.5">
                 <img src="${poster}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="">
                 
-                <button onclick="toggleWatchlistStateFromSearch(event, '${movie.id}')" 
+                <button onclick="toggleWatchlistStateFromSearch(event, '${item.id}')" 
                         class="absolute top-2.5 left-2.5 w-8 h-8 rounded-xl bg-black/50 backdrop-blur-md border border-white/10 hover:text-indigo-400 hover:scale-110 flex items-center justify-center transition-all duration-300 z-20 group/wBtn ${watchClass}"
-                        data-watchlist-id="${movie.id}">
+                        data-watchlist-id="${item.id}">
                     <i class="fa-bookmark text-xs transition-transform duration-300 group-hover/wBtn:scale-110"></i>
                 </button>
 
-                <button onclick="toggleFavoriteStateFromSearch(event, '${movie.id}')" 
-                        class="absolute top-2.5 right-6 w-8 h-8 rounded-xl bg-black/50 backdrop-blur-md border border-white/10 hover:text-rose-400 hover:scale-110 flex items-center justify-center transition-all duration-300 z-20 group/fBtn ${favClass}"
-                        data-favorite-id="${movie.id}">
+                <button onclick="toggleFavoriteStateFromSearch(event, '${item.id}')" 
+                        class="absolute top-2.5 right-2.5 w-8 h-8 rounded-xl bg-black/50 backdrop-blur-md border border-white/10 hover:text-rose-400 hover:scale-110 flex items-center justify-center transition-all duration-300 z-20 group/fBtn ${favClass}"
+                        data-favorite-id="${item.id}">
                     <i class="fa-solid fa-heart text-xs transition-transform duration-300 group-hover/fBtn:scale-110"></i>
                 </button>
             </div>
@@ -195,7 +201,8 @@ window.toggleWatchlistStateFromSearch = function(event, movieId) {
 
 async function syncSearchActionToBackend(endpointType, movieId, token) {
     try {
-        await fetch(`http://localhost:8081/api/media/${endpointType}`, {
+        // Updated from localhost to production Render cluster mapping
+        await fetch(`${LIVE_BACKEND_URL}/api/media/${endpointType}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ movieId: movieId })
@@ -204,12 +211,12 @@ async function syncSearchActionToBackend(endpointType, movieId, token) {
 }
 
 // --- OVERLAY PREVIEW MANAGEMENT canvas ---
-window.openSearchDetailDrawer = function(id, title, year, rating, description, image) {
+window.openSearchDetailDrawer = function(id, title, year, rating, description, image, type = 'movie') {
     if (!drawer) return;
     
     document.getElementById('drawerImage').src = image;
     dTitle.innerText = title;
-    dYear.innerText = `${year} • Exploration Search`;
+    dYear.innerText = `${year} • ${type === 'tv' ? 'TV Network Show' : 'Cinema Feature'}`;
     dRating.innerText = rating;
     dDesc.innerText = description;
 
